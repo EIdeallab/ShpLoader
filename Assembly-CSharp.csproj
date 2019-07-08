@@ -62,9 +62,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Endian.cs" />
+    <Compile Include="Assets\File.cs" />
     <Compile Include="Assets\IFile.cs" />
-    <Compile Include="Assets\Shape.cs" />
-    <Compile Include="Assets\ShpFile.cs" />
+    <Compile Include="Assets\IRecord.cs" />
+    <Compile Include="Assets\Record.cs" />
+    <Compile Include="Assets\RecordContents.cs" />
     <Compile Include="Assets\Type.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/adsha/Desktop/ShpLoader/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>

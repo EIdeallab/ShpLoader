@@ -10,6 +10,6 @@ namespace Assets
     {
         void Load(string path);
         void Save(string path);
-        void GetData(int index);
+        IRecord GetData(int index);
     }
 }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
 namespace Assets
 {
     public enum FileType
@@ -32,4 +31,13 @@ namespace Assets
         MultiPatch = 31
     }
 
+    public enum PartType
+    {
+        TriangleStrip,
+        TriangleFan,
+        OuterRing,
+        InnerRing,
+        FirstRing,
+        Ring
+    }
 }
