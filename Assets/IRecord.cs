@@ -9,10 +9,6 @@ namespace Assets
     public interface IRecord
     {
         void Load(ref BinaryReader br);
-    }
-
-    public interface IRecordContents : IRecord
-    {
         long GetLength();
     }
 }

@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Assets
 {
-    public class Range : IRecordContents
+    public class Range : IRecord
     {
         public double Min { get; set; }
         public double Max { get; set; }
@@ -26,7 +26,7 @@ namespace Assets
         }
     }
 
-    public class RangeXY : IRecordContents
+    public class RangeXY : IRecord
     {
         public double MinX { get; set; }
         public double MaxX { get; set; }
@@ -49,7 +49,7 @@ namespace Assets
         }
     }
 
-    public class Point : IRecordContents
+    public class Point : IRecord
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -68,7 +68,7 @@ namespace Assets
         }
     }
     
-    public class MultiPoint : IRecordContents
+    public class MultiPoint : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumPoints { get; set; }
@@ -96,7 +96,7 @@ namespace Assets
         }
     }
 
-    public class PolyLine : IRecordContents
+    public class PolyLine : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumParts { get; set; }
@@ -133,7 +133,7 @@ namespace Assets
         }
     }
 
-    public class Polygon : IRecordContents
+    public class Polygon : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumParts { get; set; }
@@ -170,7 +170,7 @@ namespace Assets
         }
     }
 
-    public class PointM : IRecordContents
+    public class PointM : IRecord
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -191,7 +191,7 @@ namespace Assets
         }
     }
 
-    public class MultiPointM : IRecordContents
+    public class MultiPointM : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumPoints { get; set; }
@@ -228,7 +228,7 @@ namespace Assets
         }
     }
 
-    public class PolyLineM : IRecordContents
+    public class PolyLineM : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumParts { get; set; }
@@ -274,7 +274,7 @@ namespace Assets
         }
     }
 
-    public class PolygonM : IRecordContents
+    public class PolygonM : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumParts { get; set; }
@@ -321,7 +321,7 @@ namespace Assets
     }
 
 
-    public class PointZ : IRecordContents
+    public class PointZ : IRecord
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -343,7 +343,7 @@ namespace Assets
         }
     }
 
-    public class MultiPointZ : IRecordContents
+    public class MultiPointZ : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumPoints { get; set; }
@@ -389,7 +389,7 @@ namespace Assets
         }
     }
 
-    public class PolyLineZ : IRecordContents
+    public class PolyLineZ : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumParts { get; set; }
@@ -443,7 +443,7 @@ namespace Assets
         }
     }
 
-    public class PolygonZ : IRecordContents
+    public class PolygonZ : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumParts { get; set; }
@@ -498,7 +498,7 @@ namespace Assets
         }
     }
 
-    public class MultiPatch : IRecordContents
+    public class MultiPatch : IRecord
     {
         public RangeXY XYRange { get; set; }
         public int NumParts { get; set; }
