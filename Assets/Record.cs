@@ -62,39 +62,61 @@ namespace Assets
         }
     }
 
-    public class DbfRecord : IRecord
+    public class DbfFieldDiscriptor : IRecord
     {
         public string FieldName { get; set; }
-        public char FieldType { get; set; }
+        public DBFFieldType FieldType { get; set; }
         public int Address { get; set; }
         public byte FieldLength { get; set; }
         public byte DecimalCount { get; set; }
-        public short WorkAreaID { get; set; }
-        public byte Example { get; set; }
-        public byte[] Reserved { get; set; }
-        public byte MDXFieildFlag { get; set; }
-
-        public override string ToString()
-        {
-            return String.Format("{0} {1}", FieldName, FieldType);
-        }
+        public byte[] Reserved1 { get; set; }
+        public byte WorkArea { get; set; }
+        public byte[] Reserved2 { get; set; }
+        public byte FieldFlag { get; set; }
 
         public void Load(ref BinaryReader br)
         {
             FieldName = new string(br.ReadChars(11));
-            FieldType = br.ReadChar();
+            FieldType = (DBFFieldType)br.ReadChar();
             Address = br.ReadInt32();
             FieldLength = br.ReadByte();
             DecimalCount = br.ReadByte();
-            WorkAreaID = br.ReadInt16();
-            Example = br.ReadByte();
-            Reserved = br.ReadBytes(10);
-            MDXFieildFlag = br.ReadByte();
+            Reserved1 = br.ReadBytes(2);
+            WorkArea = br.ReadByte();
+            Reserved2 = br.ReadBytes(2);
+            FieldFlag = br.ReadByte();
+            br.ReadBytes(8);
         }
 
         public long GetLength()
         {
             long size = 32;
+            return size;
+        }
+    }
+
+    public class DbfRecord : IDBRecord
+    {
+        public char DeletionMarker { get; set; }
+        public IDBRecord Contents { get; set; }
+
+        public DbfRecord(List<DbfFieldDiscriptor> fieldList)
+        {
+            foreach(DbfFieldDiscriptor fieldDiscriptor in fieldList)
+            {
+                Contents = DataFactory.CreateInstance(fieldDiscriptor);
+            }
+        }
+
+        public void Load(ref BinaryReader br, DbfFieldDiscriptor fd)
+        {
+            DeletionMarker = br.ReadChar();
+            Contents.Load(ref br, fd);
+        }
+
+        public long GetLength()
+        {
+            long size = sizeof(char) + Contents.GetLength();
             return size;
         }
     }
@@ -116,7 +138,7 @@ namespace Assets
                 { ShapeType.PolyLineZ, () => new PolyLineZ() },
                 { ShapeType.PolygonZ, () => new PolygonZ() },
                 { ShapeType.MultiPointZ, () => new MultiPointZ() },
-                { ShapeType.MultiPatch, () => new MultiPatch() },
+                { ShapeType.MultiPatch, () => new MultiPatch() }
             };
 
         public static IRecord CreateInstance(ShapeType shapeType)
@@ -125,5 +147,22 @@ namespace Assets
         }
     }
 
+    public class DataFactory
+    {
+        public static readonly IDictionary<DBFFieldType, Func<IDBRecord>> Creators =
+            new Dictionary<DBFFieldType, Func<IDBRecord>>()
+            {
+                { DBFFieldType.Character, () => new DBCharacter() },
+                { DBFFieldType.Logical, () => new DBLogical() },
+                { DBFFieldType.Numeric, () => new DBNumeric() },
+                { DBFFieldType.Float, () => new DBFloat() },
+                { DBFFieldType.Date, () => new DBDate() },
+                { DBFFieldType.Memo, () => new DBMemo() }
+            };
 
+        public static IDBRecord CreateInstance(DbfFieldDiscriptor fieldDiscriptor)
+        {
+            return Creators[fieldDiscriptor.FieldType]();
+        }
+    }
 }

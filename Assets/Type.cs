@@ -74,7 +74,7 @@ namespace Assets
     }
 
     [Flags]
-    public enum DBFTableFlags : byte
+    public enum TransactionFlag : byte
     {
         None = 0x00,
         HasStructuralCDX = 0x01,

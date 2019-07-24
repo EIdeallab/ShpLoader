@@ -11,4 +11,10 @@ namespace Assets
         void Load(ref BinaryReader br);
         long GetLength();
     }
+
+    public interface IDBRecord
+    {
+        void Load(ref BinaryReader br, DbfFieldDiscriptor fd);
+        long GetLength();
+    }
 }

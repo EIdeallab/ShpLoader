@@ -52,11 +52,12 @@ namespace Assets
 
         public IRecord GetData(int index)
         {
-            throw new NotImplementedException();
+            return RecordSet[index];
         }
     }
     class ShxFile : IFile
     {
+        
         public int FileCode { get; set; }
         public int FileLength { get; set; }
         public int FileVersion { get; set; }
@@ -64,7 +65,8 @@ namespace Assets
         public RangeXY XYRange { get; set; }
         public Range ZRange { get; set; }
         public Range MRange { get; set; }
-        
+        public List<IRecord> RecordSet { get; set; }
+
         public void Load(string path)
         {
             using (FileStream fs = File.OpenWrite(path))
@@ -91,6 +93,7 @@ namespace Assets
                 {
                     ShxRecord record = new ShxRecord();
                     record.Load(ref br);
+                    RecordSet.Add(record);
 
                     curPoint += record.GetLength();
                 }
@@ -115,9 +118,8 @@ namespace Assets
         public short HeaderLength { get; set; }
         public short RecordLength { get; set; }
         public byte[] Reserved { get; set; }
-        public DBFTableFlags TableFlags { get; set; }
-        public byte CodePage { get; set; }
-        public short EndOfHeader { get; set; }
+        public List<DbfFieldDiscriptor> FieldList { get; set; }
+        public List<IRecord> RecordSet { get; set; }
 
         public void Load(string path)
         {
@@ -131,21 +133,22 @@ namespace Assets
                 NumberOfRecords = br.ReadInt32();
                 HeaderLength = br.ReadInt16();
                 RecordLength = br.ReadInt16();
-                Reserved = br.ReadBytes(2);
-                TableFlags = (DBFTableFlags)br.ReadByte();
-                CodePage = br.ReadByte();
-                EndOfHeader = br.ReadInt16();
-                
-                long curPoint = 0;
+                Reserved = br.ReadBytes(20);
 
-                while (curPoint < RecordLength)
+                FieldList = new List<DbfFieldDiscriptor>();
+                while(br.PeekChar() != 0x0d)
                 {
-                    DbfRecord record = new DbfRecord();
-                    record.Load(ref br);
-
-                    curPoint += record.GetLength();
+                    DbfFieldDiscriptor field = new DbfFieldDiscriptor();
+                    field.Load(ref br);
+                    FieldList.Add(field);
                 }
 
+                br.BaseStream.Position = HeaderLength;
+
+                foreach(DbfFieldDiscriptor field in FieldList)
+                {
+                    DbfRecord record = new DbfRecord(FieldList);
+                }
                 br.Dispose();
             }
         }

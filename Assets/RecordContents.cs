@@ -7,6 +7,88 @@ using System.IO;
 
 namespace Assets
 {
+    public class DBCharacter : IDBRecord
+    {
+        public char[] Characters;
+
+        public long GetLength()
+        {
+            return Characters.Length;
+        }
+
+        public void Load(ref BinaryReader br, DbfFieldDiscriptor fd)
+        {
+            Characters = br.ReadChars(fd.FieldLength);
+        }
+    }
+
+    public class DBDate : IDBRecord
+    {
+        public char[] Date;
+
+        public long GetLength()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Load(ref BinaryReader br, DbfFieldDiscriptor fd)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DBFloat : IDBRecord
+    {
+        public long GetLength()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Load(ref BinaryReader br, DbfFieldDiscriptor fd)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DBLogical : IDBRecord
+    {
+        public long GetLength()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Load(ref BinaryReader br, DbfFieldDiscriptor fd)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DBMemo : IDBRecord
+    {
+        public long GetLength()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Load(ref BinaryReader br, DbfFieldDiscriptor fd)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DBNumeric : IDBRecord
+    {
+        public long GetLength()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Load(ref BinaryReader br, DbfFieldDiscriptor fd)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class Range : IRecord
     {
         public double Min { get; set; }

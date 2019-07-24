@@ -10,7 +10,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{8A4B0841-0A7C-CC92-A165-0B9BA427D542}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -68,6 +69,7 @@
     <Compile Include="Assets\IRecord.cs" />
     <Compile Include="Assets\Record.cs" />
     <Compile Include="Assets\RecordContents.cs" />
+    <Compile Include="Assets\ShapeRenderer.cs" />
     <Compile Include="Assets\Type.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/adsha/Desktop/ShpLoader/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
