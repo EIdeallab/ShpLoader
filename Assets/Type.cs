@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace Assets
 {
-    public enum FileType : byte
+    public enum FileType : int
     {
         Shp,
         Shx,
         Dbf
     }
 
-    public enum ShapeType : byte
+    public enum ShapeType : int
     {
         Null = 0,
         Point = 1,
@@ -31,7 +31,7 @@ namespace Assets
         MultiPatch = 31
     }
 
-    public enum PartType : byte
+    public enum PartType : int
     {
         TriangleStrip,
         TriangleFan,

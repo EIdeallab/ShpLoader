@@ -1,14 +1,24 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Assets
 {
     public interface IFile
     {
-        void Load(string path);
+        void Load();
         IRecord GetData(int index);
+    }
+
+    public interface IShpFile : IFile
+    {
+        int FileCode { get; set; }
+        int FileLength { get; set; }
+        int FileVersion { get; set; }
+        ShapeType ShpType { get; set; }
+        RangeXY TotalXYRange { get; set; }
+        Range ZRange { get; set; }
+        Range MRange { get; set; }
+        int ContentLength { get; set; }
     }
 }

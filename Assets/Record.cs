@@ -1,64 +1,84 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.IO;
+using UnityEngine;
 
 namespace Assets
 {
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1), Serializable]
     public class ShxRecord : IRecord
     {
-        public ShpRecordHeader header { get; set; }
-        
+        public int Offset { get; set; }
+        public int Length { get; set; }
+
         public void Load(ref BinaryReader br)
         {
-            header.Load(ref br);
+            Offset = Util.FromBigEndian(br.ReadInt32()) * 2;
+            Length = Util.FromBigEndian(br.ReadInt32()) * 2;
         }
 
         public long GetLength()
         {
-            return header.GetLength();
+            return Marshal.SizeOf(this);
         }
     }
 
-    public class ShpRecord : IRecord
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1), Serializable]
+    public class ShpRecord : IRecord, IRenderableData
     {
-        public ShpRecordHeader header { get; set; }
-        public IRecord Contents { get; set; }
+        public ShpRecordHeader Header { get; set; }
+        public IElement Contents { get; set; }
 
         public ShpRecord(ShapeType type)
         {
-            header = new ShpRecordHeader();
+            Header = new ShpRecordHeader();
             Contents = ShapeFactory.CreateInstance(type);
         }
 
         public void Load(ref BinaryReader br)
         {
-            header.Load(ref br);
+            Header.Load(ref br);
             Contents.Load(ref br);
         }
 
         public long GetLength()
         {
-            return header.GetLength() + Contents.GetLength();
+            return Header.GetLength() + Contents.GetLength();
+        }
+
+        public void Render(RangeXY range, Color color)
+        {
+            try
+            {
+                IRenderableData renderContents = (IRenderableData)Contents;
+                renderContents.Render(range, color);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
     }
 
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1), Serializable]
     public class ShpRecordHeader : IRecord
     {
         public int RecordNumber { get; set; }
         public int ContentLength { get; set; }
-        
+        public ShapeType Type { get; set; }
+
         public void Load(ref BinaryReader br)
         {
-            RecordNumber = Endian.FromBigEndian(br.ReadInt32());
-            ContentLength = Endian.FromBigEndian(br.ReadInt32()) * 2;
+            RecordNumber = Util.FromBigEndian(br.ReadInt32());
+            ContentLength = Util.FromBigEndian(br.ReadInt32()) * 2;
+            Type = (ShapeType)br.ReadInt32();
         }
 
         public long GetLength()
         {
-            return sizeof(int) * 2;
+            return Marshal.SizeOf(this);
         }
     }
 
@@ -95,36 +115,40 @@ namespace Assets
         }
     }
 
-    public class DbfRecord : IDBRecord
+    public class DbfRecord : IRecord
     {
+        List<DbfFieldDiscriptor> FieldList { get; set; }
         public char DeletionMarker { get; set; }
-        public IDBRecord Contents { get; set; }
+        public List<IElement> Record { get; set; }
 
         public DbfRecord(List<DbfFieldDiscriptor> fieldList)
         {
-            foreach(DbfFieldDiscriptor fieldDiscriptor in fieldList)
-            {
-                Contents = DataFactory.CreateInstance(fieldDiscriptor);
-            }
+            FieldList = fieldList;
+            Record = new List<IElement>();
         }
 
-        public void Load(ref BinaryReader br, DbfFieldDiscriptor fd)
+        public void Load(ref BinaryReader br)
         {
             DeletionMarker = br.ReadChar();
-            Contents.Load(ref br, fd);
+            foreach (DbfFieldDiscriptor fd in FieldList)
+            {
+                IElement element = DataFactory.CreateInstance(fd);
+                element.Load(ref br);
+                Record.Add(element);
+            }
         }
 
         public long GetLength()
         {
-            long size = sizeof(char) + Contents.GetLength();
+            long size = sizeof(byte) + FieldList.Sum(field => field.FieldLength);
             return size;
         }
     }
 
     public class ShapeFactory
     {
-        public static readonly IDictionary<ShapeType, Func<IRecord>> Creators =
-            new Dictionary<ShapeType, Func<IRecord>>()
+        public static readonly IDictionary<ShapeType, Func<IElement>> Creators =
+            new Dictionary<ShapeType, Func<IElement>>()
             {
                 { ShapeType.Point, () => new Point() },
                 { ShapeType.PolyLine, () => new PolyLine() },
@@ -141,7 +165,7 @@ namespace Assets
                 { ShapeType.MultiPatch, () => new MultiPatch() }
             };
 
-        public static IRecord CreateInstance(ShapeType shapeType)
+        public static IElement CreateInstance(ShapeType shapeType)
         {
             return Creators[shapeType]();
         }
@@ -149,20 +173,20 @@ namespace Assets
 
     public class DataFactory
     {
-        public static readonly IDictionary<DBFFieldType, Func<IDBRecord>> Creators =
-            new Dictionary<DBFFieldType, Func<IDBRecord>>()
+        public static readonly IDictionary<DBFFieldType, Func<DbfFieldDiscriptor, IElement>> Creators =
+            new Dictionary<DBFFieldType, Func<DbfFieldDiscriptor, IElement>>()
             {
-                { DBFFieldType.Character, () => new DBCharacter() },
-                { DBFFieldType.Logical, () => new DBLogical() },
-                { DBFFieldType.Numeric, () => new DBNumeric() },
-                { DBFFieldType.Float, () => new DBFloat() },
-                { DBFFieldType.Date, () => new DBDate() },
-                { DBFFieldType.Memo, () => new DBMemo() }
+                { DBFFieldType.Character, (fd) => new DBCharacter(fd) },
+                { DBFFieldType.Logical, (fd) => new DBLogical(fd) },
+                { DBFFieldType.Numeric, (fd) => new DBNumeric(fd) },
+                { DBFFieldType.Float, (fd) => new DBFloat(fd) },
+                { DBFFieldType.Date, (fd) => new DBDate(fd) },
+                { DBFFieldType.Memo, (fd) => new DBMemo(fd) }
             };
 
-        public static IDBRecord CreateInstance(DbfFieldDiscriptor fieldDiscriptor)
+        public static IElement CreateInstance(DbfFieldDiscriptor fd)
         {
-            return Creators[fieldDiscriptor.FieldType]();
+            return Creators[fd.FieldType](fd);
         }
     }
 }
